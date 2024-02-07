@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+image-store:
+  filepath: src/test/resources/imagestore/
+  maximum-file-size: 10485767
+  openapi:
+    host-url: http://localhost:8080

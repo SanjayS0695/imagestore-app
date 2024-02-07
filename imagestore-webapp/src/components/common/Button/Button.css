@@ -1,0 +1,19 @@
+.button {
+  display: flex;
+  height: 80%;
+  padding-left: 3%;
+  padding-right: 3%;
+  background-color: #1f4172;
+  justify-content: center;
+  border-radius: 5%;
+  color: aliceblue;
+
+  h3 {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.button:hover {
+  cursor: pointer;
+}

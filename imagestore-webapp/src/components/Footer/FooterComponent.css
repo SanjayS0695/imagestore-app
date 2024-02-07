@@ -1,0 +1,32 @@
+.footer-wrapper {
+  background-color: #1f4170;
+  height: 7vh;
+  display: flex;
+
+  h3 {
+    margin: auto;
+    color: #fdf0f0;
+  }
+}
+
+.button-one {
+  display: flex;
+  justify-content: center;
+  width: 50%;
+}
+
+.button-one:hover {
+  background-color: #26528f;
+  cursor: pointer;
+}
+
+.button-two {
+  display: flex;
+  justify-content: center;
+  width: 50%;
+}
+
+.button-two:hover {
+  background-color: #26528f;
+  cursor: pointer;
+}

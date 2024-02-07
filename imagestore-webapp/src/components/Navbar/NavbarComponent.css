@@ -1,0 +1,32 @@
+.navbar-wrapper {
+  background-color: #1f4170;
+  height: 8vh;
+  display: flex;
+
+  h3 {
+    margin: auto;
+    color: #fdf0f0;
+  }
+}
+
+.header-one {
+  display: flex;
+  justify-content: center;
+  width: 50%;
+}
+
+.header-one:hover {
+  background-color: #26528f;
+  cursor: pointer;
+}
+
+.header-two {
+  display: flex;
+  justify-content: center;
+  width: 50%;
+}
+
+.header-two:hover {
+  background-color: #26528f;
+  cursor: pointer;
+}

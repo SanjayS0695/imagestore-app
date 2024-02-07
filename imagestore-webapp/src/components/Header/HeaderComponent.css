@@ -1,0 +1,32 @@
+.header {
+  display: flex;
+  align-items: center;
+  height: 10vh  ;
+  background-color: #132043;
+
+  div {
+    display: flex;
+    width: calc(100% / 3);
+
+    h2 {
+      color: #fdf0f0;
+    }
+    img {
+      height: 5rem;
+    }
+  }
+}
+
+.logo-wrapper {
+  justify-content: flex-start;
+}
+
+.logout-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.title-wrapper {
+  display: flex;
+  justify-content: center;
+}

@@ -1,0 +1,27 @@
+server:
+  port: 8080
+spring:
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+  datasource:
+    url: jdbc:mysql://localhost:3306/codecademy?createDatabaseIfNotExist=true&useSSL=true
+    username: root
+    password: password
+    driver-class: com.mysql.cj.jdbc.Driver
+image-store:
+  filepath: /Users/sanjays/imagetest/
+  maximum-file-size: 10485767
+  openapi:
+    host-url: http://localhost:8080
+security:
+  jwt:
+    secret-key: secret1234007
+    expiration-key: 900_000

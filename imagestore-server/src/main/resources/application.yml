@@ -1,0 +1,12 @@
+springdoc:
+  api-docs:
+    enabled: true
+    path: /imagestore-api-docs
+  swagger-ui:
+    enabled: true
+    path: /imagestore-documentation
+    tryItOutEnabled: true
+    operationSorter: method
+    filter: true
+  packages-to-scan: com.codecademy.imagestore.controller
+

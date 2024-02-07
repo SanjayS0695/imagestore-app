@@ -1,0 +1,61 @@
+version: "1.1"
+services:
+  imagestore-server:
+    build:
+      context: ./imagestore-server
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - 8080:8080
+    networks:
+      - imagestore-net
+    environment:
+      - OTEL_SERVICE_NAME=imagestore-server
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_TRACES_EXPORTER=jaeger
+      - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger:14250
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/codecademy?createDatabaseIfNotExist=true&useSSL=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+      - FILE_PATH=/var/lib/imagestore/
+      - MAX_FILE_SIZE=10485767
+      - SERVER_URL=http://localhost:8080
+    volumes:
+      - imagestore_data:/var/lib/imagestore
+    depends_on:
+      - mysqlDB
+
+  imagestore-webapp:
+    build:
+      context: ./imagestore-webapp
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+
+  mysqldb:
+    image: mysql:8.0
+    restart: always
+    ports:
+      - 3306:3306
+    networks:
+      - imagestore-net
+    environment:
+      MYSQL_DATABASE: codecademy
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14250:14250"
+
+volumes:
+  imagestore_data:
+  db_data:
+
+networks:
+  imagestore-net:

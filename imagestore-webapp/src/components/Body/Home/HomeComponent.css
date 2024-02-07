@@ -1,0 +1,54 @@
+.body-title {
+  position: relative;
+  top: -30%;
+  width: 100%;
+  display: flex;
+
+  h2 {
+    margin: auto;
+    margin-bottom: 0;
+  }
+}
+
+.action-wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 50%;
+  width: 100%;
+  justify-content: center;
+
+  position: absolute;
+  top: 20%;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    align-items: center;
+
+    h3 {
+      width: calc(100% / 4);
+      margin: 10%;
+      margin-bottom: 0;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    h3:hover {
+      cursor: pointer;
+      border-radius: 15px;
+      background-color: rgb(209, 214, 219);
+    }
+  }
+}
+
+.action-set-one {
+  position: relative;
+  left: 10%;
+}
+
+.action-set-two {
+  position: relative;
+  right: 10%;
+}
