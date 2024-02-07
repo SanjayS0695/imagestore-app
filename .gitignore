@@ -1,0 +1,5 @@
+/imagestore-server/build/**
+/imagestore-server/.idea
+/imagestore-server/bin
+/imagestore-webapp/node_modules
+/imagestore-webapp/build

@@ -88,7 +88,7 @@ function* deleteImage(action) {
   }
 }
 
-function* ImageSage() {
+function* imageSaga() {
   yield takeEvery(UPLOAD_IMAGE, uploadImage);
   yield takeEvery(VIEW_ALL_IMAGES, viewImages);
   yield takeEvery(GET_IMAGE_BY_ID, getImage);
@@ -96,4 +96,4 @@ function* ImageSage() {
   yield takeEvery(DELETE_IMAGE_BY_ID, deleteImage);
 }
 
-export default ImageSage;
+export default imageSaga;

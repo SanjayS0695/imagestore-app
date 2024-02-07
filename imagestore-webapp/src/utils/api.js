@@ -1,22 +1,77 @@
 import axios from "axios";
+import { addAuthHeader, getRefreshToken } from "./helper";
+
+const API_URL = "http://localhost:8080/api/auth";
 
 const client = axios.create({
   Accept: "application/json",
   "Content-Type": "application/json",
 });
 
-export const getApi = (url, conf = {}) => {
-  // client.defaults.headers.common.Authorization =
-  //   "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5qYXkuc3VyZXNoQGltZ2FwcC5jb20iLCJpYXQiOjE3MDcyOTkzNDYsImV4cCI6MTcwNzMwMDc4Nn0.5HC1rYeTTMq1wHnQQ3FPgoqvUy7Z8krPJ9jS_HoItz8";
+client.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = getRefreshToken();
+        if (refreshToken) {
+          const response = await axios.post(`${API_URL}/refresh-token`, {
+            refreshToken,
+          });
+          const token = response?.data?.accessToken;
 
+          localStorage.setItem("user", JSON.stringify(response?.data));
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return axios(originalRequest);
+        }
+      } catch (error) {
+        window.alert("Failed to get refresh token.");
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const register = async (user) => {
+  return await postApi(`${API_URL}/signup`, user)
+    .then(() => {
+      window.location.href = "/login";
+    })
+    .catch(() => {
+      window.alert("Sign up failed");
+    });
+};
+
+export const login = async (request) => {
+  return await postApi(`${API_URL}/login`, request)
+    .then((response) => {
+      if (response?.accessToken) {
+        localStorage.setItem("user", JSON.stringify(response));
+      }
+      return response;
+    })
+    .then(() => {
+      window.location.href = "/";
+    })
+    .catch(() => {
+      window.alert("Wrong email or password");
+    });
+};
+
+export const logout = () => {
+  localStorage.removeItem("user");
+  window.location.href = "/login";
+};
+
+export const getApi = async (url, conf = {}) => {
   conf = {
     ...conf,
-    headers: {
-      Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5qYXkuc3VyZXNoQGltZ2FwcC5jb20iLCJpYXQiOjE3MDcyOTkzNDYsImV4cCI6MTcwNzMwMDc4Nn0.5HC1rYeTTMq1wHnQQ3FPgoqvUy7Z8krPJ9jS_HoItz8",
-    },
+    headers: addAuthHeader(),
   };
-  return axios
+  return await axios
     .get(url, conf)
     .then((response) => {
       return response?.data;
@@ -26,15 +81,12 @@ export const getApi = (url, conf = {}) => {
     });
 };
 
-export const postApi = (url, data = {}, conf = {}) => {
+export const postApi = async (url, data = {}, conf = {}) => {
   conf = {
     ...conf,
-    headers: {
-      Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5qYXkuc3VyZXNoQGltZ2FwcC5jb20iLCJpYXQiOjE3MDczMDAwMjgsImV4cCI6MTcwNzMwMTQ2OH0.4lF2I5rg_C4ROFbSbVhPL-rP5g0wZ2DLr4cGIIeAEFM",
-    },
+    headers: addAuthHeader(),
   };
-  return axios
+  return await axios
     .post(url, data, conf)
     .then((response) => {
       return response?.data;
@@ -44,15 +96,12 @@ export const postApi = (url, data = {}, conf = {}) => {
     });
 };
 
-export const updateApi = (url, data = {}, conf = {}) => {
+export const updateApi = async (url, data = {}, conf = {}) => {
   conf = {
     ...conf,
-    headers: {
-      Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5qYXkuc3VyZXNoQGltZ2FwcC5jb20iLCJpYXQiOjE3MDcyOTkzNDYsImV4cCI6MTcwNzMwMDc4Nn0.5HC1rYeTTMq1wHnQQ3FPgoqvUy7Z8krPJ9jS_HoItz8",
-    },
+    headers: addAuthHeader(),
   };
-  return axios
+  return await axios
     .patch(url, data, conf)
     .then((response) => {
       return response?.data;
@@ -62,15 +111,12 @@ export const updateApi = (url, data = {}, conf = {}) => {
     });
 };
 
-export const deleteApi = (url, conf = {}) => {
+export const deleteApi = async (url, conf = {}) => {
   conf = {
     ...conf,
-    headers: {
-      Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5qYXkuc3VyZXNoQGltZ2FwcC5jb20iLCJpYXQiOjE3MDcyOTkzNDYsImV4cCI6MTcwNzMwMDc4Nn0.5HC1rYeTTMq1wHnQQ3FPgoqvUy7Z8krPJ9jS_HoItz8",
-    },
+    headers: addAuthHeader(),
   };
-  return axios
+  return await axios
     .delete(url, conf)
     .then((response) => {
       return response?.data;

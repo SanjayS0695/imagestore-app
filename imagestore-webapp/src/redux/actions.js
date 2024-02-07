@@ -27,3 +27,16 @@ export const DELETE_IMAGE_BY_ID_FAILED = createAction(
 export const DELETE_IMAGE_BY_ID_SUCCESS = createAction(
   "DELETE_IMAGE_BY_ID_SUCCESS"
 );
+
+export const REGISTER = createAction("REGISTER");
+export const REGISTER_FAILED = createAction("REGISTER_FAILED");
+export const REGISTER_SUCCESS = createAction("REGISTER_SUCCESS");
+
+export const LOGIN = createAction("LOGIN");
+export const LOGIN_SUCCESS = createAction("LOGIN_SUCCESS");
+export const LOGIN_FAILED = createAction("LOGIN_FAILED");
+
+export const LOGOUT = createAction("LOGOUT");
+
+export const SET_MESSAGE = createAction("SET_MESSAGE");
+export const CLEAR_MESSAGE = createAction("CLEAR_MESSAGE");

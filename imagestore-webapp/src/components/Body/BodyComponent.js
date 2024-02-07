@@ -1,11 +1,11 @@
 import { Route, Routes } from "react-router-dom";
-import "./BodyComponent.css";
 import HomeComponent from "./Home/HomeComponent";
 import UploadComponent from "./Upload/UploadComponent";
 import GetImageComponent from "./GetImage/GetImageComponent";
 import DeleteImageComponent from "./DeleteImage/DeleteImageComponent";
 import UpdateImageComponent from "./UpdateImage/UpdateImageComponent";
 import ViewComponent from "./View/ViewComponent";
+import "./BodyComponent.css";
 
 const BodyComponent = ({ handleImage, image }) => {
   return (
