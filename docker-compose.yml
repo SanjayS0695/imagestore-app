@@ -21,6 +21,9 @@ services:
       - FILE_PATH=/var/lib/imagestore/
       - MAX_FILE_SIZE=10485767
       - SERVER_URL=http://localhost:8080
+      - SECRET_KEY=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      - JWT_EXP_KEY=3600000
+      - REF_TOKEN_EXP=86400000
     volumes:
       - imagestore_data:/var/lib/imagestore
     depends_on:

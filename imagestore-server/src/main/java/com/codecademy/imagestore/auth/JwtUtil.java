@@ -2,6 +2,7 @@ package com.codecademy.imagestore.auth;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -14,14 +15,14 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-//    @Value("${security.jwt.secret-key}")
-//    private String secretKey;
-//
-//    @Value("${security.jwt.expiration-key}")
-//    private long jwtExpirationTime;
+    @Value("${security.jwt.secret-key}")
+    private String secretKey;
 
-    private final String secretKey = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private long jwtExpirationTime = 24*60*1000;
+    @Value("${security.jwt.expiration-time}")
+    private long jwtExpirationTime;
+
+//    private final String secretKey = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
+//    private long jwtExpirationTime = 24*60*1000;
     private final String TOKEN_HEADER = "Authorization";
     private final String TOKEN_PREFIX = "Bearer ";
 
@@ -68,7 +69,7 @@ public class JwtUtil {
         return username.equals(userDetails.getUsername()) && !isTokenExpires(token);
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 

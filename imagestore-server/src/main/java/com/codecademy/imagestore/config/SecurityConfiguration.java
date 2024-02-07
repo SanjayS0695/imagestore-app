@@ -1,5 +1,6 @@
-package com.codecademy.imagestore.auth;
+package com.codecademy.imagestore.config;
 
+import com.codecademy.imagestore.auth.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

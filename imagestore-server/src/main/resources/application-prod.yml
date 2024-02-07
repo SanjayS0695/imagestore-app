@@ -21,3 +21,8 @@ image-store:
   maximum-file-size: ${MAX_FILE_SIZE}
   openapi:
     host-url: ${SERVER_URL}
+security:
+  jwt:
+    secret-key: ${SECRET_KEY}
+    expiration-time: ${JWT_EXP_KEY}
+    refresh-token-expiration: ${REF_TOKEN_EXP}
