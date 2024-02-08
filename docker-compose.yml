@@ -57,6 +57,8 @@ services:
     ports:
       - "16686:16686"
       - "14250:14250"
+    networks:
+      - imagestore-net
 
 volumes:
   imagestore_data:
