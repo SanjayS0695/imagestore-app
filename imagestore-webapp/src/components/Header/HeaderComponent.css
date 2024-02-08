@@ -1,8 +1,9 @@
 .header {
   display: flex;
   align-items: center;
-  height: 10vh  ;
+  height: 10vh;
   background-color: #132043;
+  justify-content: center;
 
   div {
     display: flex;
@@ -11,22 +12,24 @@
     h2 {
       color: #fdf0f0;
     }
-    img {
-      height: 5rem;
-    }
   }
 }
 
-.logo-wrapper {
-  justify-content: flex-start;
-}
-
 .logout-wrapper {
-  display: flex;
-  justify-content: center;
+  position: absolute;
+  left: 90%;
 }
 
 .title-wrapper {
   display: flex;
   justify-content: center;
+}
+
+.logout-button {
+  height: 35px !important;
+  width: 80px !important;
+  font-size: large;
+  border-radius: 8px;
+  border: 1px solid grey;
+  padding-left: 8px;
 }

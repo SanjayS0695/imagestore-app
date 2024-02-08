@@ -52,6 +52,7 @@ const App = () => {
 
   const handleLogout = () => {
     dispatch(LOGOUT());
+    window.alert("Logging Out!");
   };
 
   return (

@@ -28,8 +28,9 @@ function* registerUser(action) {
   }
 }
 
-function* logoutUser(action) {
+function* logoutUser() {
   yield call(logout);
+  window.alert("Successfully logged out!");
 }
 
 function* authSaga() {

@@ -54,6 +54,7 @@ function* getImage(action) {
     );
     yield put(GET_IMAGE_BY_ID_SUCCESS(response));
   } catch (error) {
+    alert(`Error: ${error?.response?.data?.message}`);
     yield put(GET_IMAGE_BY_ID_FAILED(error));
   }
 }
@@ -72,6 +73,7 @@ function* updateImage(action) {
     );
     yield put(UPDATE_IMAGE_BY_ID_SUCCESS(response));
   } catch (error) {
+    alert(`Error: ${error?.message}`);
     yield put(UPDATE_IMAGE_BY_ID_FAILED(error));
   }
 }

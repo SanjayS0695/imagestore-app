@@ -13,7 +13,12 @@ const UploadComponent = ({ handleImage, image }) => {
     <div className="upload-wrapper">
       <h2>Select image to upload</h2>
       <input type="file" onChange={handleUpload} />
-      <img alt="Not found" src={displayImage} />
+      <div className="image-wrapper">
+        <img alt="Not found" src={displayImage} />
+      </div>
+      {/* <div className="image-wrapper">
+        <ImageWrapper altText={"Not found"} image={displayImage}></ImageWrapper>
+      </div> */}
     </div>
   );
 };

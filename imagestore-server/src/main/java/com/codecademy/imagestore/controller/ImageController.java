@@ -117,7 +117,8 @@ public class ImageController {
     public ResponseEntity<Long> updateImageById(final @RequestParam(value = "image") MultipartFile image,
                                                 final @RequestParam(value = "desc", required = false) String desc,
                                                 @PathVariable(value = "id") Long id) {
-        return ResponseEntity.ok(this.imageService.updateImageById(image, desc, id).getId());
+        var imageData = this.imageService.updateImageById(image, desc, id);
+        return ResponseEntity.ok(null != imageData ? imageData.getId() : null);
     }
 
     @Operation(
