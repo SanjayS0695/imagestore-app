@@ -9,21 +9,26 @@ import com.codecademy.imagestore.mapper.ImageDataMapper;
 import com.codecademy.imagestore.repository.ImageRepository;
 import com.codecademy.imagestore.utils.ImageStoreUtil;
 import com.codecademy.imagestore.validator.ImageStoreValidator;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
 @Service
+@CacheConfig(cacheNames = "image_data")
 public class ImageService {
 
     @Autowired
@@ -41,7 +46,6 @@ public class ImageService {
      * @param imageFile
      * @return
      */
-    @Transactional
     public Long uploadImage(MultipartFile imageFile, String description) {
         ImageStoreValidator.validateImage(imageFile);
         validateImageSize(imageFile.getSize());
@@ -81,26 +85,36 @@ public class ImageService {
      * @param id
      * @return
      */
-    public ImageDataDTO getImageById(Long id) throws GenericAPIException {
+    @Cacheable(key = "#id")
+    public ImageData getImageById(Long id) throws GenericAPIException {
         ImageStoreValidator.validateId(id);
         var optionalImage = this.imageRepository.findById(id);
         if (optionalImage.isPresent()) {
-            try {
-                var imageData =  optionalImage.get();
-                var imageDTO = ImageDataMapper.INSTANCE.toDTO(imageData);
-                var byteStream = Files.readAllBytes(new File(imageDTO.getFilePath()).toPath());
-                imageDTO.setImage(byteStream);
-                return imageDTO;
-            } catch (Exception e) {
-                log.error("[ImageStore - Get Image] - Failed to get the Image(Id: {}) data from the system.", id, e);
-                throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load Image from system due to error: " + e.getLocalizedMessage());
-            }
+            return optionalImage.get();
         } else {
             log.error("[ImageStore - Get Image] - Image not found for the provided id({}).", id);
             throw new GenericAPIException(HttpStatus.NO_CONTENT, "[ImageStore - Get Image] - File not found for the provided Id.");
         }
     }
 
+    /**
+     * Method to set the Image byte stream in ImageDataDTO and return it.
+     *
+     * @param imageData
+     * @return
+     */
+    public ImageDataDTO getImageDTOForTheImageData(ImageData imageData) {
+        try {
+            var imageDTO = ImageDataMapper.INSTANCE.toDTO(imageData);
+            var byteStream = ImageStoreUtil.readBytesFromFilePath(imageData.getFilePath());
+            imageDTO.setImage(byteStream);
+            return imageDTO;
+        } catch (Exception e) {
+            log.error("[ImageStore - Get Image] - Failed to get the Image(Id: {}) data from the system.", imageData.getId(), e);
+            throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load Image from system due to error: " + e.getLocalizedMessage());
+        }
+
+    }
     /**
      * Method to load the image as byte stream from the system using image id
      *
@@ -113,7 +127,7 @@ public class ImageService {
         if (optionalImage.isPresent()) {
             try {
                 var imageData = optionalImage.get();
-                return Files.readAllBytes(new File(imageData.getFilePath()).toPath());
+                return ImageStoreUtil.readBytesFromFilePath(imageData.getFilePath());
             } catch (Exception e) {
                 log.error("[ImageStore - Load Image] - Failed to load the Image(Id: {}) from the system.", id, e);
                 throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load image from system." + e.getLocalizedMessage());
@@ -135,15 +149,7 @@ public class ImageService {
         AggregatedImagesDTO aggregatedImagesDTO = new AggregatedImagesDTO();
         if (!imageDataList.isEmpty()) {
             var imageDataDTOList = ImageDataMapper.INSTANCE.toDTOList(imageDataList);
-            for (ImageDataDTO imageDataDTO: imageDataDTOList) {
-                try {
-                    var byteStream = Files.readAllBytes(new File(imageDataDTO.getFilePath()).toPath());
-                    imageDataDTO.setImage(byteStream);
-                } catch (IOException e) {
-                    log.warn("[ImageStore - GetAllImages] - Failed to load the Image(Id: {}) from the system.",
-                            imageDataDTO.getId());
-                }
-            }
+            imageDataDTOList.forEach(this::setImageBytesInDTO);
             aggregatedImagesDTO.setImages(imageDataDTOList);
         } else {
             return aggregatedImagesDTO;
@@ -151,12 +157,22 @@ public class ImageService {
         return aggregatedImagesDTO;
     }
 
+    private void setImageBytesInDTO(ImageDataDTO dto) {
+        try {
+            var byteStream = ImageStoreUtil.readBytesFromFilePath(dto.getFilePath());
+            dto.setImage(byteStream);
+        } catch (IOException e) {
+            log.warn("[ImageStore - GetAllImages] - Failed to load the Image(Id: {}) from the system.",
+                    dto.getId());
+        }
+    }
+
     /**
      * Method to delete an image by Id
      *
      * @param id
      */
-    @Transactional
+    @CacheEvict(key = "#id")
     public void deleteImage(Long id) throws GenericAPIException {
         ImageStoreValidator.validateId(id);
         var fileData = this.imageRepository.findById(id);
@@ -184,29 +200,33 @@ public class ImageService {
      * @return
      * @throws GenericAPIException
      */
-    @Transactional
-    public Long updateImageById(MultipartFile image, String desc, Long id) throws GenericAPIException {
-        if (null != image || desc != null) {
-            ImageStoreValidator.validateId(id);
-            var optionalOldImage = this.imageRepository.findById(id);
-            if (optionalOldImage.isPresent()) {
-                var existingImageData = optionalOldImage.get();
-                if (null != image) {
-                    updateExistingImageWithNewImage(id, existingImageData, image);
-                }
-                if (desc != null && !desc.isBlank()) {
+    @CachePut(key = "#id")
+    public ImageData updateImageById(MultipartFile image, String desc, Long id) throws GenericAPIException {
+        ImageStoreValidator.validateId(id);
+        ImageStoreValidator.validateImage(image);
+        validateImageSize(image.getSize());
+        var optionalOldImage = this.imageRepository.findById(id);
+        if (optionalOldImage.isPresent()) {
+            var existingImageData = optionalOldImage.get();
+            String oldImagePath = existingImageData.getFilePath();
+            var oldImage = new File(oldImagePath);
+            try {
+                updateExistingImageWithNewImage(id, existingImageData, image);
+                if (!desc.isBlank()) {
                     existingImageData.setDescription(desc);
                 }
                 var savedImageData = this.imageRepository.save(existingImageData);
                 log.info("[ImageStore - Update Image] - ImageData was successfully updated in the DB.");
-                return savedImageData.getId();
-            } else {
-                log.error("[ImageStore - Update Image] - File not found for the given Id: {}.", id);
-                throw new GenericAPIException(HttpStatus.NO_CONTENT, "File not found for the given Id: " + id);
+                return savedImageData;
+            }
+            catch(Exception ex) {
+                rollbackImageUpdateInFileSystem(existingImageData.getFilePath(), oldImage, oldImagePath);
             }
         } else {
-            throw new GenericAPIException(HttpStatus.BAD_REQUEST, "Both Image and Desc cannot be null for the update.");
+            log.error("[ImageStore - Update Image] - File not found for the given Id: {}.", id);
+            throw new GenericAPIException(HttpStatus.NO_CONTENT, "File not found for the given Id: " + id);
         }
+        return null;
     }
 
     /**
@@ -233,7 +253,7 @@ public class ImageService {
         validateImageSize(newImage.getSize());
         try {
             var oldImage = new File(existingImageData.getFilePath());
-            if (oldImage.delete()) {
+            if (oldImage.exists() && oldImage.delete()) {
                 log.info("[ImageStore - Update Image] - Previous image was successfully deleted from the file system.");
                 var newImagePath = ImageStoreUtil
                         .generateFilePath(basePath, newImage.getOriginalFilename());
@@ -251,4 +271,25 @@ public class ImageService {
             throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getLocalizedMessage());
         }
     }
+
+    /**
+     * Method to remove image if it got saved without updating the metadata in db and save back the old one
+     *
+     * @param newImagePath
+     * @param oldImage
+     * @param oldImagePath
+     * @throws GenericAPIException
+     */
+    private void rollbackImageUpdateInFileSystem(String newImagePath, File oldImage, String oldImagePath)
+            throws GenericAPIException {
+        var newImage = new File(newImagePath);
+        if (newImage.exists()) {
+            newImage.delete();
+        }
+        var existingImage = new File(oldImagePath);
+        if (!existingImage.exists()) {
+            ImageStoreUtil.writeBytesToFile(oldImagePath, oldImage);
+        }
+    }
+
 }

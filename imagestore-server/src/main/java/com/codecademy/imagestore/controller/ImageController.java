@@ -60,7 +60,8 @@ public class ImageController {
     })
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ImageDataDTO> getImageById(@PathVariable(value = "id") Long id) {
-        return ResponseEntity.ok(this.imageService.getImageById(id));
+        var imageData = this.imageService.getImageById(id);
+        return ResponseEntity.ok(this.imageService.getImageDTOForTheImageData(imageData));
     }
 
     @Operation(
@@ -116,7 +117,7 @@ public class ImageController {
     public ResponseEntity<Long> updateImageById(final @RequestParam(value = "image") MultipartFile image,
                                                 final @RequestParam(value = "desc", required = false) String desc,
                                                 @PathVariable(value = "id") Long id) {
-        return ResponseEntity.ok(this.imageService.updateImageById(image, desc, id));
+        return ResponseEntity.ok(this.imageService.updateImageById(image, desc, id).getId());
     }
 
     @Operation(

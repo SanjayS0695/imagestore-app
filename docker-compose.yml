@@ -1,6 +1,7 @@
 version: "1.1"
 services:
   imagestore-server:
+    container_name: imagestore-server
     build:
       context: ./imagestore-server
       dockerfile: Dockerfile
@@ -30,6 +31,7 @@ services:
       - mysqlDB
 
   imagestore-webapp:
+    container_name: imagestore-webapp
     build:
       context: ./imagestore-webapp
       dockerfile: Dockerfile

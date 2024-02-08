@@ -9,6 +9,11 @@ public class ImageStoreValidator {
     private static final String JPEG_TYPE = "image/jpeg";
     private static final String PNG_TYPE = "image/png";
 
+    /**
+     * Method to validate MultipartFile image
+     *
+     * @param image
+     */
     public static void validateImage(final MultipartFile image) {
         if (image == null) {
             throw new GenericAPIException(HttpStatus.BAD_REQUEST, "Uploaded image cannot be null or empty.");
@@ -27,6 +32,11 @@ public class ImageStoreValidator {
         }
     }
 
+    /**
+     * Method to validate Id
+     *
+     * @param id
+     */
     public static void validateId(Long id) {
         if (null == id) {
             throw new GenericAPIException(HttpStatus.BAD_REQUEST, "Image id cannot be null.");

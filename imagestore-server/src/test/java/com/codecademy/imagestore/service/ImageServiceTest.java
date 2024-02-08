@@ -108,9 +108,8 @@ public class ImageServiceTest {
         testData.setId(1L);
         testData.setFilePath(TEST_IMAGE_PATH);
         when(imageRepository.findById(anyLong())).thenReturn(Optional.of(testData));
-        var imageDataDTO = imageService.getImageById(1L);
-        Assertions.assertEquals(1, imageDataDTO.getId());
-        Assertions.assertNotNull(imageDataDTO.getImage());
+        var imageData = imageService.getImageById(1L);
+        Assertions.assertEquals(1, imageData.getId());
     }
 
     @Test
@@ -127,9 +126,8 @@ public class ImageServiceTest {
         var testData = new ImageData();
         testData.setId(1L);
         testData.setFilePath("src/test/resources/imagestore/imageNotFound.png");
-        when(imageRepository.findById(anyLong())).thenReturn(Optional.of(testData));
         Assertions.assertThrows(GenericAPIException.class,
-                () -> imageService.getImageById(1L));
+                () -> imageService.getImageDTOForTheImageData(testData));
     }
 
     @Test
@@ -254,7 +252,6 @@ public class ImageServiceTest {
         testData.setDescription("desc");
         testData.setName("testImage");
         testData.setFilePath(TEST_IMAGE_PATH);
-        when(imageRepository.findById(anyLong())).thenReturn(Optional.of(testData));
         var byteStream = Files.readAllBytes(new File(REF_IMAGE_PATH).toPath());
         MultipartFile image = new MockMultipartFile("image", "image1",
                 "image/jpeg", byteStream);
@@ -269,7 +266,6 @@ public class ImageServiceTest {
         testData.setDescription("desc");
         testData.setName("testImage");
         testData.setFilePath(TEST_IMAGE_PATH);
-        when(imageRepository.findById(anyLong())).thenReturn(Optional.of(testData));
         MultipartFile image = new MockMultipartFile("image", "image1",
                 null, new byte[]{});
         Assertions.assertThrows(GenericAPIException.class,
@@ -283,7 +279,6 @@ public class ImageServiceTest {
         testData.setDescription("desc");
         testData.setName("testImage");
         testData.setFilePath(TEST_IMAGE_PATH);
-        when(imageRepository.findById(anyLong())).thenReturn(Optional.of(testData));
         MultipartFile image = new MockMultipartFile("image", "image1",
                 "application/json", new byte[]{});
         Assertions.assertThrows(GenericAPIException.class,

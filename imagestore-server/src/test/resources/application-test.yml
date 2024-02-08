@@ -10,3 +10,8 @@ image-store:
   maximum-file-size: 10485767
   openapi:
     host-url: http://localhost:8080
+security:
+  jwt:
+    secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    expiration-time: 3600000
+    refresh-token-expiration: 86400000

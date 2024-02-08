@@ -1,10 +1,14 @@
 package com.codecademy.imagestore.controller;
 
+import com.codecademy.imagestore.auth.JwtUtil;
 import com.codecademy.imagestore.dto.AggregatedImagesDTO;
 import com.codecademy.imagestore.dto.ImageDataDTO;
 import com.codecademy.imagestore.entity.ImageData;
+import com.codecademy.imagestore.entity.UserData;
 import com.codecademy.imagestore.enums.ImageType;
+import com.codecademy.imagestore.enums.Role;
 import com.codecademy.imagestore.repository.ImageRepository;
+import com.codecademy.imagestore.repository.UserRepository;
 import com.codecademy.imagestore.util.TestUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
@@ -35,7 +39,7 @@ public class ImageControllerTest {
     @LocalServerPort
     private int port;
 
-    private String baseUrl = "http://localhost";
+    private final String baseUrl = "http://localhost";
 
     private static TestRestTemplate restTemplate;
     private ImageData imageData;
@@ -46,6 +50,12 @@ public class ImageControllerTest {
     @Autowired
     private ImageRepository imageRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @BeforeAll
     public static void init() {
         restTemplate = new TestRestTemplate(TestRestTemplate.HttpClientOption.values());
@@ -54,7 +64,19 @@ public class ImageControllerTest {
     @BeforeEach
     public void setup() throws IOException {
         url = baseUrl + ":" + port + "/images";
+
         headers = new HttpHeaders();
+        var mockUser = new UserData();
+        mockUser.setFirstName("Test");
+        mockUser.setPassword("password");
+        mockUser.setLastName("User");
+        mockUser.setEmail("testuser@imagestore.com");
+        mockUser.setRole(Role.USER);
+
+        userRepository.save(mockUser);
+        var token = jwtUtil.generateToken(mockUser);
+        headers.add("Authorization", "Bearer " + token);
+
         var testData = new ImageData();
         testData.setId(1L);
         testData.setName("TestImage");
@@ -68,8 +90,18 @@ public class ImageControllerTest {
     @AfterEach
     public void afterSetup() throws IOException {
         imageRepository.deleteAll();
+        userRepository.deleteAll();
         var directory = new File(TEST_IMAGE_ROOT);
         FileUtils.cleanDirectory(directory);
+    }
+
+    @Test
+    void uploadImageTestWithoutAuthentication() {
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(null, new HttpHeaders());
+
+        var response = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN,response.getStatusCode());
     }
 
     @Test
@@ -86,9 +118,8 @@ public class ImageControllerTest {
         LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", imageFile);
         body.add("desc", "Description");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, httpHeaders);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
 
         var response = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
         Assertions.assertNotNull(response);
@@ -110,15 +141,23 @@ public class ImageControllerTest {
         LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", imageFile);
         body.add("desc", "Description");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, httpHeaders);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
         var response = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST,response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         String errorMessage = response.getBody();
         Assertions.assertEquals("Uploaded image should only be of the format JPEG or PNG.", errorMessage);
+    }
+
+    @Test
+    void getImageByIdWithoutAuthentication() {
+        var getUrl = url + "/1";
+        HttpEntity<Object> httpEntity = new HttpEntity<>(null, new HttpHeaders());
+        var response = restTemplate.exchange(getUrl, HttpMethod.GET, httpEntity, String.class);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN,response.getStatusCode());
     }
 
     @Test
@@ -141,7 +180,7 @@ public class ImageControllerTest {
     }
 
     @Test
-    void getImageByIdWhenImageDataNotFound() throws IOException {
+    void getImageByIdWhenImageDataNotFound() {
         imageRepository.deleteAll();
         var getUrl = url + "/1";
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
@@ -180,6 +219,15 @@ public class ImageControllerTest {
     }
 
     @Test
+    void loadImageByIdWithoutAuthentication() {
+        var getUrl = url + "/1/_load";
+        HttpEntity<Object> httpEntity = new HttpEntity<>(null, new HttpHeaders());
+        var response = restTemplate.exchange(getUrl, HttpMethod.GET, httpEntity, String.class);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN,response.getStatusCode());
+    }
+
+    @Test
     void loadImageById() throws IOException {
         Long id = TestUtil.getCurrentID(imageRepository.findAll());
         var getUrl = url + "/" + id + "/_load";
@@ -191,13 +239,22 @@ public class ImageControllerTest {
     }
 
     @Test
-    void loadImageByIdWhenEntityNotFound() throws IOException {
+    void loadImageByIdWhenEntityNotFound() {
         imageRepository.deleteAll();
         var getUrl = url + "/1/_load";
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
         var response = restTemplate.exchange(getUrl, HttpMethod.GET, httpEntity, String.class);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.NO_CONTENT,response.getStatusCode());
+    }
+
+    @Test
+    void updateImageTestWithoutAuthentication() {
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(null, new HttpHeaders());
+
+        var response = restTemplate.exchange(url+ "/1", HttpMethod.PATCH, httpEntity, String.class);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN,response.getStatusCode());
     }
 
     @Test
@@ -215,9 +272,8 @@ public class ImageControllerTest {
         LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", imageFile);
         body.add("desc", "Description");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, httpHeaders);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
 
         var response = restTemplate.exchange(url+ "/" + id, HttpMethod.PATCH, httpEntity, String.class);
         Assertions.assertNotNull(response);
@@ -242,9 +298,8 @@ public class ImageControllerTest {
         LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", imageFile);
         body.add("desc", "Description");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, httpHeaders);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
 
         var response = restTemplate.exchange(url + "/" + id, HttpMethod.PATCH, httpEntity, String.class);
         Assertions.assertNotNull(response);
@@ -269,9 +324,8 @@ public class ImageControllerTest {
         LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", imageFile);
         body.add("desc", "Description");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, httpHeaders);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
 
         var response = restTemplate.exchange(url + "/" + id, HttpMethod.PATCH, httpEntity, String.class);
         Assertions.assertNotNull(response);
@@ -282,7 +336,15 @@ public class ImageControllerTest {
     }
 
     @Test
-    void deleteImageById() throws IOException {
+    void deleteImageByIdWithoutAuthentication() {
+        HttpEntity<Object> httpEntity = new HttpEntity<>(null, new HttpHeaders());
+        var response = restTemplate.exchange(url + "/1", HttpMethod.DELETE, httpEntity, String.class);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN,response.getStatusCode());
+    }
+
+    @Test
+    void deleteImageById() {
         Long id = TestUtil.getCurrentID(imageRepository.findAll());
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
         var response = restTemplate.exchange(url + "/" + id, HttpMethod.DELETE, httpEntity, String.class);
@@ -290,7 +352,7 @@ public class ImageControllerTest {
     }
 
     @Test
-    void deleteImageByIdWhenEntityNotFound() throws IOException {
+    void deleteImageByIdWhenEntityNotFound() {
         imageRepository.deleteAll();
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
         var response = restTemplate.exchange(url + "/1", HttpMethod.DELETE, httpEntity, String.class);
