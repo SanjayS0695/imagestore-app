@@ -190,6 +190,7 @@ The above APIs are secured with spring security using JWT Token Authentication.
 You may refer gradle dependencies.
 
 ### Build and Run:
+The following instructions should be executed from the folder `imagestore-server/` 
 The application can be run using two approaches:
 1. Run the application in local with IDE:
    * Prerequisite:
