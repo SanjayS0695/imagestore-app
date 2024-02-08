@@ -11,6 +11,9 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Utility class for image store servce
+ */
 public class ImageStoreUtil {
 
     private static final String extPattern = "(?<!^)[.].*";
@@ -52,6 +55,13 @@ public class ImageStoreUtil {
         }
     }
 
+    /**
+     * Method to read byte[] from File
+     *
+     * @param path
+     * @return
+     * @throws IOException
+     */
     public static byte[] readBytesFromFilePath(String path) throws IOException {
         return Files.readAllBytes(Path.of(path));
     }

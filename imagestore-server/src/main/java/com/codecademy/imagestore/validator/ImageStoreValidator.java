@@ -7,10 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 import static com.codecademy.imagestore.utils.ServiceConstants.IMAGE_JPEG;
 import static com.codecademy.imagestore.utils.ServiceConstants.IMAGE_PNG;
 
+/**
+ * Validator class for Image related functions
+ */
 public class ImageStoreValidator {
 
-    private static final String JPEG_TYPE = "image/jpeg";
-    private static final String PNG_TYPE = "image/png";
 
     /**
      * Method to validate MultipartFile image
