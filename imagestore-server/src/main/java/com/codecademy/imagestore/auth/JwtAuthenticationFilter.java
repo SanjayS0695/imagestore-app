@@ -2,6 +2,7 @@ package com.codecademy.imagestore.auth;
 
 
 import com.codecademy.imagestore.exception.GenericAPIException;
+import com.codecademy.imagestore.exception.ServiceError;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +20,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.codecademy.imagestore.utils.ServiceConstants.TOKEN_HEADER;
+import static com.codecademy.imagestore.utils.ServiceConstants.TOKEN_PREFIX;
+
+/**
+ * Class to add security filter to incoming request
+ * @author sanjays
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -27,9 +34,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-    private final String TOKEN_HEADER = "Authorization";
-    private final String TOKEN_PREFIX = "Bearer ";
-
+    /**
+     * Override method to add JWT filter to the incoming request
+     *
+     * @param request
+     * @param response
+     * @param filterChain
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -60,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (ExpiredJwtException exception) {
-            throw new GenericAPIException(HttpStatus.UNAUTHORIZED, "Token expired. Need to refresh the token to continue.");
+            throw new GenericAPIException(ServiceError.ACCESS_TKN_EXPIRED);
         }
         filterChain.doFilter(request, response);
     }

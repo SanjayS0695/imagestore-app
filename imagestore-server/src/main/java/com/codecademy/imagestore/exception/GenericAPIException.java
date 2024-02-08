@@ -5,14 +5,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class GenericAPIException extends RuntimeException {
 
     private HttpStatus status;
+    private String code;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private LocalDateTime timestamp;
     private String message;
@@ -22,7 +23,18 @@ public class GenericAPIException extends RuntimeException {
         this.timestamp = LocalDateTime.now();
     }
 
-    public GenericAPIException(HttpStatus status, String message) {
+    public GenericAPIException(final ServiceError serviceError, final Object... args) {
+        this();
+        this.code = serviceError.getCode();
+        this.status = serviceError.getStatus();
+        if (null != args) {
+            this.message = MessageFormat.format(serviceError.getDetails(), args);
+        } else {
+            this.message = serviceError.getDetails();
+        }
+    }
+
+    public GenericAPIException(final HttpStatus status, final String message) {
         this();
         this.status = status;
         this.message = message;

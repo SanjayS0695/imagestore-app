@@ -9,9 +9,9 @@ import com.codecademy.imagestore.entity.RefreshToken;
 import com.codecademy.imagestore.entity.UserData;
 import com.codecademy.imagestore.enums.Role;
 import com.codecademy.imagestore.exception.GenericAPIException;
+import com.codecademy.imagestore.exception.ServiceError;
 import com.codecademy.imagestore.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,7 +28,7 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
 
-    private final RefreshTokenService refreshTokenService;
+    private final AuthTokenService authTokenService;
 
     /**
      * Method to register user on sign up
@@ -61,7 +61,7 @@ public class AuthService {
         var authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),
                 request.getPassword()));
         if (authentication.isAuthenticated()) {
-            var refreshToken = refreshTokenService.createRefreshToken(request.getEmail());
+            var refreshToken = authTokenService.createRefreshToken(request.getEmail());
             var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
             var jwtToken = jwtUtil.generateToken(user);
             var expirationDate = jwtUtil.extractExpiration(jwtToken);
@@ -83,8 +83,8 @@ public class AuthService {
      * @return
      */
     public AuthResponse refreshToken(TokenRequest tokenRequest) {
-        return refreshTokenService.findByToken(tokenRequest.getRefreshToken())
-                .map(refreshTokenService::verifyExpirationDate)
+        return authTokenService.findByToken(tokenRequest.getRefreshToken())
+                .map(authTokenService::verifyExpirationDate)
                 .map(RefreshToken::getUserInfo)
                 .map(userData -> {
                     String token = jwtUtil.generateToken(userData);
@@ -95,8 +95,7 @@ public class AuthService {
                             .email(userData.getEmail())
                             .build();
                 })
-                .orElseThrow(() -> new GenericAPIException(HttpStatus.NOT_FOUND, "Refresh token not found."));
+                .orElseThrow(() -> new GenericAPIException(ServiceError.REFRESH_TKN_NOT_FOUND));
 
     }
-
 }

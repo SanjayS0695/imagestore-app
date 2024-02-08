@@ -5,6 +5,7 @@ import com.codecademy.imagestore.dto.ImageDataDTO;
 import com.codecademy.imagestore.entity.ImageData;
 import com.codecademy.imagestore.enums.ImageType;
 import com.codecademy.imagestore.exception.GenericAPIException;
+import com.codecademy.imagestore.exception.ServiceError;
 import com.codecademy.imagestore.mapper.ImageDataMapper;
 import com.codecademy.imagestore.repository.ImageRepository;
 import com.codecademy.imagestore.utils.ImageStoreUtil;
@@ -68,12 +69,12 @@ public class ImageService {
             } catch (Exception e) {
                 var image = new File(imageData.getFilePath());
                 image.delete();
-                log.error("[ImageStore - Upload Image] - Failed to upload image to the system.", e);
-                throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "[ImageStore - Upload Image] - Image upload failed due to the error: " + e.getLocalizedMessage());
+                log.error(ServiceError.IMAGE_UPLOAD_FAILED.getDetails(), e);
+                throw new GenericAPIException(ServiceError.IMAGE_UPLOAD_FAILED);
             }
         } catch (Exception e) {
-            log.error("[ImageStore - Upload Image] - Failed to upload image to the system.", e);
-            throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "[ImageStore - Upload Image] - Image upload failed due to the error: " + e.getLocalizedMessage());
+            log.error(ServiceError.IMAGE_UPLOAD_FAILED.getDetails(), e);
+            throw new GenericAPIException(ServiceError.IMAGE_UPLOAD_FAILED);
         }
     }
 
@@ -91,7 +92,7 @@ public class ImageService {
             return optionalImage.get();
         } else {
             log.error("[ImageStore - Get Image] - Image not found for the provided id({}).", id);
-            throw new GenericAPIException(HttpStatus.NO_CONTENT, "[ImageStore - Get Image] - File not found for the provided Id.");
+            throw new GenericAPIException(ServiceError.IMAGE_DATA_NOT_FOUND ,id);
         }
     }
 
@@ -108,8 +109,8 @@ public class ImageService {
             imageDTO.setImage(byteStream);
             return imageDTO;
         } catch (Exception e) {
-            log.error("[ImageStore - Get Image] - Failed to get the Image(Id: {}) data from the system.", imageData.getId(), e);
-            throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load Image from system due to error: " + e.getLocalizedMessage());
+            log.error("[ImageStore - Get Image] - Failed to get the Image(Id: {}) file from the system.", imageData.getId(), e);
+            throw new GenericAPIException(ServiceError.FAILED_TO_LOAD_FILE, imageData.getId());
         }
 
     }
@@ -128,11 +129,11 @@ public class ImageService {
                 return ImageStoreUtil.readBytesFromFilePath(imageData.getFilePath());
             } catch (Exception e) {
                 log.error("[ImageStore - Load Image] - Failed to load the Image(Id: {}) from the system.", id, e);
-                throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load image from system." + e.getLocalizedMessage());
+                throw new GenericAPIException(ServiceError.FAILED_TO_LOAD_FILE, id);
             }
         } else {
             log.error("[ImageStore - Load Image] - Failed to load the Image(Id: {}) from the system.", id);
-            throw new GenericAPIException(HttpStatus.NO_CONTENT, "[ImageStore - Delete Image] - File not found for the provided Id.");
+            throw new GenericAPIException(ServiceError.IMAGE_DATA_NOT_FOUND, id);
         }
     }
 
@@ -181,11 +182,11 @@ public class ImageService {
                 this.imageRepository.deleteById(id);
                 log.info("[ImageStore - Delete Image] - Image was successfully deleted from the file system.");
             } else {
-                throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "[ImageStore - Delete Image] - Failed to delete the image from the server due to some error.");
+                throw new GenericAPIException(ServiceError.IMAGE_DELETE_FAILED);
             }
         } else {
-            log.error("[ImageStore - Get Image] - Image not found for the provided id({}).", id);
-            throw new GenericAPIException(HttpStatus.NO_CONTENT, "[ImageStore - Get Image] - File not found for the provided Id.");
+            log.error("[ImageStore - Delete Image] - Image not found for the provided id({}).", id);
+            throw new GenericAPIException(ServiceError.IMAGE_DATA_NOT_FOUND, id);
         }
     }
 
@@ -222,7 +223,7 @@ public class ImageService {
             }
         } else {
             log.error("[ImageStore - Update Image] - File not found for the given Id: {}.", id);
-            throw new GenericAPIException(HttpStatus.NO_CONTENT, "File not found for the given Id: " + id);
+            throw new GenericAPIException(ServiceError.IMAGE_DATA_NOT_FOUND, id);
         }
         return null;
     }
@@ -234,8 +235,7 @@ public class ImageService {
      */
     private void validateImageSize(Long imageSize) {
         if (imageSize > Long.parseLong(maximumImageSize)) {
-            throw new GenericAPIException(HttpStatus.NOT_ACCEPTABLE,
-                    String.format("The uploaded image is greater than the maximum allowed image size %s", maximumImageSize));
+            throw new GenericAPIException(ServiceError.IMAGE_SIZE_LARGE, maximumImageSize);
         }
     }
 
@@ -262,11 +262,11 @@ public class ImageService {
                 log.info("[ImageStore - Update Image] - New image was successfully saved to the file system.");
             } else {
                 log.error("[ImageStore - Update Image] - Failed to update the ImageData(Id: {}) with latest image as the previous file was not successfully deleted", id);
-                throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the previous image from the file system.");
+                throw new GenericAPIException(ServiceError.IMAGE_UPDATE_FAILED, existingImageData.getId());
             }
         } catch (IOException exception) {
             log.error("[ImageStore - Update Image] - Failed to update the ImageData(Id: {}) with latest image as the previous file was not successfully deleted", id, exception);
-            throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getLocalizedMessage());
+            throw new GenericAPIException(ServiceError.IMAGE_UPDATE_FAILED, existingImageData.getId());
         }
     }
 

@@ -1,7 +1,7 @@
 package com.codecademy.imagestore.utils;
 
 import com.codecademy.imagestore.exception.GenericAPIException;
-import org.springframework.http.HttpStatus;
+import com.codecademy.imagestore.exception.ServiceError;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,7 +48,7 @@ public class ImageStoreUtil {
             var byteStream = readBytesFromFilePath(oldImage.getPath());
             outputStream.write(byteStream);
         } catch (IOException e) {
-            throw new GenericAPIException(HttpStatus.INTERNAL_SERVER_ERROR, "[ImageStore - Update Image] - Failed to rollback image updated in the file system as the image was not successfully updated in the db.");
+            throw new GenericAPIException(ServiceError.FAILED_TO_ROLL_BACK_PREVIOUS_IMAGE);
         }
     }
 

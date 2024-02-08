@@ -1,8 +1,11 @@
 package com.codecademy.imagestore.validator;
 
 import com.codecademy.imagestore.exception.GenericAPIException;
-import org.springframework.http.HttpStatus;
+import com.codecademy.imagestore.exception.ServiceError;
 import org.springframework.web.multipart.MultipartFile;
+
+import static com.codecademy.imagestore.utils.ServiceConstants.IMAGE_JPEG;
+import static com.codecademy.imagestore.utils.ServiceConstants.IMAGE_PNG;
 
 public class ImageStoreValidator {
 
@@ -16,17 +19,17 @@ public class ImageStoreValidator {
      */
     public static void validateImage(final MultipartFile image) {
         if (image == null) {
-            throw new GenericAPIException(HttpStatus.BAD_REQUEST, "Uploaded image cannot be null or empty.");
+            throw new GenericAPIException(ServiceError.BAD_REQUEST, "ImageFile");
         } else {
             final String contentType = image.getContentType();
             if (null == contentType || contentType.isBlank()) {
-                throw new GenericAPIException(HttpStatus.BAD_REQUEST, "Content Type of the uploaded file cannot be null or empty.");
+                throw new GenericAPIException(ServiceError.BAD_REQUEST, "Content Type of file");
             } else {
-                if (!(contentType.equals(JPEG_TYPE) || contentType.equals(PNG_TYPE))) {
-                    throw new GenericAPIException(HttpStatus.BAD_REQUEST, "Uploaded image should only be of the format JPEG or PNG.");
+                if (!(contentType.equals(IMAGE_JPEG) || contentType.equals(IMAGE_PNG))) {
+                    throw new GenericAPIException(ServiceError.INVALID_CONTENT_TYPE);
                 }
                 if (null == image.getOriginalFilename()) {
-                    throw new GenericAPIException(HttpStatus.BAD_REQUEST, "Image filename cannot be null or empty.");
+                    throw new GenericAPIException(ServiceError.BAD_REQUEST, "Filename");
                 }
             }
         }
@@ -39,7 +42,7 @@ public class ImageStoreValidator {
      */
     public static void validateId(Long id) {
         if (null == id) {
-            throw new GenericAPIException(HttpStatus.BAD_REQUEST, "Image id cannot be null.");
+            throw new GenericAPIException(ServiceError.BAD_REQUEST, "Image Id");
         }
     }
 }

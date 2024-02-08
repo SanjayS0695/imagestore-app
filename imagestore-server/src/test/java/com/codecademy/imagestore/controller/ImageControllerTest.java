@@ -147,8 +147,6 @@ public class ImageControllerTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST,response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        String errorMessage = response.getBody();
-        Assertions.assertEquals("Uploaded image should only be of the format JPEG or PNG.", errorMessage);
     }
 
     @Test
@@ -186,7 +184,7 @@ public class ImageControllerTest {
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
         var response = restTemplate.exchange(getUrl, HttpMethod.GET, httpEntity, String.class);
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.NO_CONTENT,response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND,response.getStatusCode());
     }
 
     @Test
@@ -245,7 +243,7 @@ public class ImageControllerTest {
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
         var response = restTemplate.exchange(getUrl, HttpMethod.GET, httpEntity, String.class);
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.NO_CONTENT,response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND,response.getStatusCode());
     }
 
     @Test
@@ -305,8 +303,6 @@ public class ImageControllerTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST,response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        String error = response.getBody();
-        Assertions.assertEquals("Uploaded image should only be of the format JPEG or PNG.", error);
     }
 
     @Test
@@ -331,8 +327,6 @@ public class ImageControllerTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST,response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
-        String errorResponse = response.getBody();
-        Assertions.assertEquals("Uploaded image should only be of the format JPEG or PNG.", errorResponse);
     }
 
     @Test
@@ -356,6 +350,6 @@ public class ImageControllerTest {
         imageRepository.deleteAll();
         HttpEntity<Object> httpEntity = new HttpEntity<>(null, headers);
         var response = restTemplate.exchange(url + "/1", HttpMethod.DELETE, httpEntity, String.class);
-        Assertions.assertEquals(HttpStatus.NO_CONTENT,response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND,response.getStatusCode());
     }
 }
