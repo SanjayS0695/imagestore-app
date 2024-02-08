@@ -16,6 +16,7 @@ function* loginUser(action) {
     yield put(LOGIN_SUCCESS(response));
   } catch (error) {
     yield put(LOGIN_FAILED(error));
+    alert(`Error: ${error?.response?.data?.message}`);
   }
 }
 
@@ -25,6 +26,7 @@ function* registerUser(action) {
     yield put(REGISTER_SUCCESS(response));
   } catch (error) {
     yield put(REGISTER_FAILED(error));
+    alert(`Error: ${error?.response?.data?.message}`);
   }
 }
 

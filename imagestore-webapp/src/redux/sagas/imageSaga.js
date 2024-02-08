@@ -33,6 +33,7 @@ function* uploadImage(action) {
     );
     yield put(UPLOAD_IMAGE_SUCCESS(response));
   } catch (error) {
+    alert(`Error: ${error?.response?.data?.message}`);
     yield put(UPLOAD_IMAGE_FAILED(error));
   }
 }
@@ -42,6 +43,7 @@ function* viewImages() {
     const response = yield call(getApi, "http://localhost:8080/images");
     yield put(VIEW_ALL_IMAGES_SUCCESS(response?.images));
   } catch (error) {
+    alert(`Error: ${error?.response?.data?.message}`);
     yield put(VIEW_ALL_IMAGES_FAILED(error));
   }
 }
@@ -86,6 +88,7 @@ function* deleteImage(action) {
     );
     yield put(DELETE_IMAGE_BY_ID_SUCCESS(response?.images));
   } catch (error) {
+    alert(`Error: ${error?.response?.data?.message}`);
     yield put(DELETE_IMAGE_BY_ID_FAILED(error));
   }
 }
