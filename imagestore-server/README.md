@@ -1,5 +1,3 @@
-# ImageStore-App
-
 ## ImageStore-Service
 
 Microservice for storing uploading and managing images.
@@ -261,6 +259,20 @@ You can access Jaeger UI [here](http://localhost:16686/search)
 ````
     http://localhost:16686/search
 ````
+## ENV Variables:
+You can update the below variables in docker-compose.yml to make changes.
+* MAX_FILE_SIZE: Maximum size for image in long
+* SERVER_URL: Base url of the imagestore-server
+* SECRET_KEY: Secret for JWT generation
+* JWT_EXP_KEY: Access token expiration time in Long
+* REF_TOKEN_EXP: Refresh token expiration in Long
+* SPRING_PROFILES_ACTIVE: Profile for the springboot app
+* SPRING_DATASOURCE_URL: DB connection url
+* SPRING_DATASOURCE_USERNAME: DB username
+* SPRING_DATASOURCE_PASSWORD: DB password
+* FILE_PATH: Filepath for storing image
+
+### Note: I have intentionally kept the db to drop and start the service every time it restarts.
 
 ## Things that I want to add more to the app:
 * Logout API && Token blacklisting
