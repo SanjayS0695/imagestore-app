@@ -127,7 +127,7 @@ public class ImageServiceTest {
         testData.setId(1L);
         testData.setFilePath("src/test/resources/imagestore/imageNotFound.png");
         Assertions.assertThrows(GenericAPIException.class,
-                () -> imageService.getImageDTOForTheImageData(testData));
+                () -> imageService.getImageById(1L));
     }
 
     @Test

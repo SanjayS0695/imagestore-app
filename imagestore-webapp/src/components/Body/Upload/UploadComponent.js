@@ -16,9 +16,6 @@ const UploadComponent = ({ handleImage, image }) => {
       <div className="image-wrapper">
         <img alt="Not found" src={displayImage} />
       </div>
-      {/* <div className="image-wrapper">
-        <ImageWrapper altText={"Not found"} image={displayImage}></ImageWrapper>
-      </div> */}
     </div>
   );
 };

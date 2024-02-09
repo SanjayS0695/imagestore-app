@@ -17,7 +17,6 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -211,7 +210,7 @@ public class ImageService {
             var oldImage = new File(oldImagePath);
             try {
                 updateExistingImageWithNewImage(id, existingImageData, image);
-                if (!desc.isBlank()) {
+                if (desc != null && !desc.isBlank()) {
                     existingImageData.setDescription(desc);
                 }
                 var savedImageData = this.imageRepository.save(existingImageData);

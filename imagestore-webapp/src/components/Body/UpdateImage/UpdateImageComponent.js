@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { TextField } from "@mui/material";
 import { useState } from "react";
 import "./UpdateImageComponent.css";
@@ -8,6 +9,7 @@ import { UPDATE_IMAGE_BY_ID } from "../../../redux/actions";
 
 const UpdateImageComponent = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [id, setId] = useState("");
   const [image, setImage] = useState("");
   const [displayImage, setDisplayImage] = useState("");
@@ -29,7 +31,8 @@ const UpdateImageComponent = () => {
       image: formData,
     };
     dispatch(UPDATE_IMAGE_BY_ID(payload));
-    alert("Update with the uploaded image.");
+    navigate("/", { replace: true });
+    alert("Update the image successfully image.");
   };
 
   return (
