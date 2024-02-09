@@ -89,7 +89,7 @@ function* deleteImage(action) {
       `http://localhost:8080/images/${action?.payload}`
     );
     yield put(DELETE_IMAGE_BY_ID_SUCCESS(response?.images));
-    alert("Succefully deleted image with id: " + id);
+    alert("Succefully deleted image.");
   } catch (error) {
     alert(`Error: ${error?.response?.data?.message}`);
     yield put(DELETE_IMAGE_BY_ID_FAILED(error));
