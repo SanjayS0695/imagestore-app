@@ -16,7 +16,6 @@ const DeleteImageComponent = () => {
   const handleDelete = () => {
     if (id) {
       dispatch(DELETE_IMAGE_BY_ID(id));
-      alert("Succefully deleted image with id: " + id);
     }
   };
   return (

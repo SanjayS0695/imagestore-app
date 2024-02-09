@@ -32,7 +32,6 @@ const UpdateImageComponent = () => {
     };
     dispatch(UPDATE_IMAGE_BY_ID(payload));
     navigate("/", { replace: true });
-    alert("Update the image successfully image.");
   };
 
   return (

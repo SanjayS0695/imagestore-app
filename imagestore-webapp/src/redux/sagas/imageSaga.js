@@ -32,6 +32,7 @@ function* uploadImage(action) {
       }
     );
     yield put(UPLOAD_IMAGE_SUCCESS(response));
+    alert("Image uploaded successfully");
   } catch (error) {
     alert(`Error: ${error?.response?.data?.message}`);
     yield put(UPLOAD_IMAGE_FAILED(error));
@@ -74,6 +75,7 @@ function* updateImage(action) {
       }
     );
     yield put(UPDATE_IMAGE_BY_ID_SUCCESS(response));
+    alert("Update with the uploaded image.");
   } catch (error) {
     alert(`Error: ${error?.message}`);
     yield put(UPDATE_IMAGE_BY_ID_FAILED(error));
@@ -87,6 +89,7 @@ function* deleteImage(action) {
       `http://localhost:8080/images/${action?.payload}`
     );
     yield put(DELETE_IMAGE_BY_ID_SUCCESS(response?.images));
+    alert("Succefully deleted image with id: " + id);
   } catch (error) {
     alert(`Error: ${error?.response?.data?.message}`);
     yield put(DELETE_IMAGE_BY_ID_FAILED(error));

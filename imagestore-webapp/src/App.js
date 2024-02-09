@@ -42,7 +42,6 @@ const App = () => {
     formData.append("image", image);
     dispatch(UPLOAD_IMAGE(formData));
     navigate("/", { replace: true });
-    alert("Image uploaded successfully");
   };
 
   const handleCancel = () => {
