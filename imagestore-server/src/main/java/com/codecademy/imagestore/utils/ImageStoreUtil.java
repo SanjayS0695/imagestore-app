@@ -63,7 +63,8 @@ public class ImageStoreUtil {
      * @throws IOException
      */
     public static byte[] readBytesFromFilePath(String path) throws IOException {
-        return Files.readAllBytes(Path.of(path));
+        return Files.readAllBytes(new File(path).toPath());
     }
 }
 
+    
