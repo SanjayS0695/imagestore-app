@@ -352,7 +352,7 @@ You can update the below variables in docker-compose.yml to make changes.
 
 ### ImageStore-WebApp
 
-- Build in React.js
+- Built in React.js
 - A basic UI is set up for the experience of ImageStore-App
 - The imagestore-webapp uses React.js coupled with Redux-Saga for statement and axios as http client.
 - There is so much more to do with the webapp like the way data is handled and the styling, etc.
